@@ -19,7 +19,9 @@
     const char * string_t;
     float float_t;
     Expr * expr_t;
+    StatementList * statement_list_t;
     Statement * statement_t;
+    ParameterList * parameter_list_t;
 }
 
 %token EOL
@@ -27,8 +29,10 @@
 %token<string_t> TK_ID
 %token<float_t>  TK_LIT_FLOAT
 
-%type <statement_t> while_stmt
-%type<expr_t> term
+%type <statement_t> while_stmt external_stmt method_decl statement method_invoc variable_decl expr_stmt
+%type<expr_t> term factor rel_expr
+%type<statement_list_t> statements input
+%type<parameter_list_t> param_list
 
 %%
 start: input{
@@ -39,12 +43,15 @@ start: input{
     }
 }
 
-input: /* empty */ 
-    | input method_decl
-    | input variable_decl
-    | input expr_stmt
-    | input while_stmt
-    | input method_invoc;
+input: input external_stmt {$$ = $1; $$->push_back($2);}
+    | external_stmt {$$ = new StatementList; $$->push_back($1);}
+    ;
+
+external_stmt : method_decl {$$ = $1;}
+    |  variable_decl {$$ = $1;}
+    |  expr_stmt {$$ = $1;}
+    |  while_stmt {$$ = $1;}
+    |  method_invoc {$$ = $1;}
     ;
 
 method_decl: LET TK_ID '(' param_list ')' '=' statements ';' { 
