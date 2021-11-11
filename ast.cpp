@@ -3,7 +3,8 @@
 #include <iostream>
 
 map<string, float> globalVariables = {};
-map<string, pair<ParameterList,StatementList>> methods;
+map<string,ParameterList> methods;
+map<string,StatementList> methodstmts;
 
 float getVariableValue(string id){
     if(!globalVariables.empty())
@@ -42,7 +43,8 @@ void MethodDefinition::printResult(){
       itd++;
   }
   pair<ParameterList,StatementList> p = pair<ParameterList,StatementList>(this->params,this->statement);
-  methods.insert(pair<string,pair<ParameterList,StatementList>>(string(this->id), p));
+  methods.insert(pair<string,ParameterList>(string(this->id), this->params));
+  methodstmts.insert(pair<string,StatementList>(string(this->id), this->statement));
   printf ("Metodo %s agregado \n", this->id);
 }
 
@@ -73,6 +75,7 @@ float BinaryExpr::getResult(){
   
   default:
     printf ("ERROR! Se quiere convertir una expresion bool a float  \n");
+    return 0;
     break;
   }
   return result;
@@ -90,6 +93,7 @@ bool BinaryExpr::evaluate(){
 
   default:
     printf ("ERROR! Se quiere convertir una expresion float a bool  \n");
+    return 0;
     break;
   }
 
@@ -104,9 +108,10 @@ float IdExpr::getResult(){
 
 void MethodInvocationStmt::printResult(){
 
-  map<string, pair<ParameterList,StatementList>>::iterator p = methods.find(string(this->id));
-  ParameterList params = p->second.first;
-  StatementList stmts = p->second.second;
+  map<string, ParameterList>::iterator p = methods.find(string(this->id));
+  map<string, StatementList>::iterator s= methodstmts.find(string(this->id));
+  ParameterList params = p->second;
+  StatementList stmts = s->second;
   if(params.size()!= this->args.size()){
     printf ("ERROR! Se requiere que complete los parametros de acuerdo a la declaracion del metodo  \n");
     return;
@@ -124,9 +129,13 @@ void MethodInvocationStmt::printResult(){
       itd++;
       itdargs++;
   }
-  StatementList::iterator stm = stmts.begin();
+  list<Statement *>::iterator stm = stmts.begin();
   while(stm!=stmts.end()){
-    stm.printResult();
+    Statement * stmt = *stm;
+    stmt->printResult();
   }
+}
 
+void ExprStatement::printResult(){
+  printf("%f", this->expr->getResult());
 }
