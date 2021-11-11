@@ -148,3 +148,8 @@ void WhileStatement::printResult(){
   }
 }
 
+void AsigStatement::printResult(){
+  globalVariables.find(string(this->id))->second = this->expr->getResult();
+  printf("%f \n", globalVariables[string(this->id)]);
+}
+

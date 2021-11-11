@@ -128,4 +128,16 @@ class ExprStatement : public Statement{
         Expr * expr;
         void printResult();
 };
+
+class AsigStatement : public Statement{
+    public:
+        AsigStatement(const char * id,Expr * expr, int line){
+            this->expr = expr;
+            this->line = line;
+            this->id = id;
+        }
+        Expr * expr;
+        void printResult();
+        const char * id;
+};
 #endif
