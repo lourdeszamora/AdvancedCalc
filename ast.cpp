@@ -3,7 +3,7 @@
 #include <iostream>
 
 map<string, float> globalVariables = {};
-map<string, int> methods;
+map<string, pair<ParameterList,StatementList>> methods;
 
 float getVariableValue(string id){
     if(!globalVariables.empty())
@@ -27,18 +27,22 @@ void Declarator::printResult(){
 
 void MethodDefinition::printResult(){
   list<Expr *>::iterator itd = this->params.begin();
-  int cont = 0;
   while (itd != this->params.end())
   {
       IdExpr * dec = dynamic_cast<IdExpr*>(*itd);
-      if(dec != NULL){
-        globalVariables.insert(pair<string,float>(string(dec->id),dec->getResult()));
-        cont++;
+      if(dec != NULL ){
+        if(globalVariables.find(string(dec->id))!= globalVariables.end()){
+          globalVariables.insert(pair<string,float>(string(dec->id),dec->getResult()));
+        }
+        else {
+          printf ("ERROR! ya existe una variable con nombre %s \n", this->id);
+        }
       }
 
       itd++;
   }
-  methods.insert(pair<string,int>(string(this->id),cont));
+  pair<ParameterList,StatementList> p = pair<ParameterList,StatementList>(this->params,this->statement);
+  methods.insert(pair<string,pair<ParameterList,StatementList>>(string(this->id), p));
   printf ("Metodo %s agregado \n", this->id);
 }
 
@@ -98,3 +102,31 @@ float IdExpr::getResult(){
   }
 }
 
+void MethodInvocationStmt::printResult(){
+
+  map<string, pair<ParameterList,StatementList>>::iterator p = methods.find(string(this->id));
+  ParameterList params = p->second.first;
+  StatementList stmts = p->second.second;
+  if(params.size()!= this->args.size()){
+    printf ("ERROR! Se requiere que complete los parametros de acuerdo a la declaracion del metodo  \n");
+    return;
+  }
+  list<Expr *>::iterator itd = params.begin();
+  list<Expr *>::iterator itdargs = this->args.begin();
+  while (itd != params.end())
+  {
+      IdExpr * dec = dynamic_cast<IdExpr*>(*itd);
+      Expr * val = *itdargs;
+      if(dec != NULL){
+        globalVariables.find(string(dec->id))->second = val->getResult();
+      }
+
+      itd++;
+      itdargs++;
+  }
+  StatementList::iterator stm = stmts.begin();
+  while(stm!=stmts.end()){
+    stm.printResult();
+  }
+
+}
