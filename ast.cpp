@@ -104,6 +104,8 @@ float IdExpr::getResult(){
   if(getVariableValue(i)!=-1){
     return getVariableValue(i);
   }
+  printf("Error variable no encontrada");
+  return -1;
 }
 
 void MethodInvocationStmt::printResult(){
@@ -139,3 +141,14 @@ void MethodInvocationStmt::printResult(){
 void ExprStatement::printResult(){
   printf("%f", this->expr->getResult());
 }
+
+void WhileStatement::printResult(){
+  while(dynamic_cast<BinaryExpr*>(this->expr)->evaluate()){
+      list<Statement *>::iterator stm = this->stmt.begin();
+      while(stm!=this->stmt.end()){
+        Statement * stmt = *stm;
+        stmt->printResult();
+      }
+  }
+}
+
