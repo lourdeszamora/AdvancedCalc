@@ -79,6 +79,7 @@ class BinaryExpr : public Expr{
         char symbol;
         int line;
         float getResult();
+        bool evaluate();
 };
 
 class IdExpr : public Expr{
@@ -94,7 +95,7 @@ class IdExpr : public Expr{
 
 class MethodInvocationStmt : public Statement{
     public:
-        MethodInvocationStmt(const char * id, ParameterList args, int line){
+        MethodInvocationStmt(const char * id, ArgumentList args, int line){
             this->id = id;
             this->args = args;
             this->line = line;
