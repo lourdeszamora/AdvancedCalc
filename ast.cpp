@@ -32,12 +32,7 @@ void MethodDefinition::printResult(){
   {
       IdExpr * dec = dynamic_cast<IdExpr*>(*itd);
       if(dec != NULL ){
-        if(globalVariables.find(string(dec->id))!= globalVariables.end()){
-          globalVariables.insert(pair<string,float>(string(dec->id),dec->getResult()));
-        }
-        else {
-          printf ("ERROR! ya existe una variable con nombre %s \n", this->id);
-        }
+        globalVariables.insert(pair<string,float>(string(dec->id),dec->getResult()));
       }
 
       itd++;
@@ -104,7 +99,6 @@ float IdExpr::getResult(){
   if(getVariableValue(i)!=-1){
     return getVariableValue(i);
   }
-  printf("Error variable no encontrada");
   return -1;
 }
 
@@ -135,11 +129,12 @@ void MethodInvocationStmt::printResult(){
   while(stm!=stmts.end()){
     Statement * stmt = *stm;
     stmt->printResult();
+    stm++;
   }
 }
 
 void ExprStatement::printResult(){
-  printf("%f", this->expr->getResult());
+  printf("%f \n", this->expr->getResult());
 }
 
 void WhileStatement::printResult(){
@@ -148,6 +143,7 @@ void WhileStatement::printResult(){
       while(stm!=this->stmt.end()){
         Statement * stmt = *stm;
         stmt->printResult();
+        stm++;
       }
   }
 }
